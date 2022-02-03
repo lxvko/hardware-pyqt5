@@ -68,7 +68,7 @@ def apply():
     print(needed_data)
     # serialSend()
     # serialSend(sorted_data)
-    
+
 # Имеется:
 # Номера выбранных функций
 # Нужно:
