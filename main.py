@@ -1,4 +1,6 @@
-from PyQt5 import QtWidgets, uic, QtGui
+import time
+
+from PyQt5 import QtWidgets, uic, QtGui, QtTest
 from PyQt5.QtSerialPort import QSerialPort, QSerialPortInfo
 from PyQt5.QtCore import QIODevice
 from collect_data import organize_data
@@ -49,10 +51,6 @@ for d in disks:
 
 # Apply button
 def apply():
-    # sorted_data = []
-    global unsorted_data
-    unsorted_data = organize_data()
-    unsorted_data['destiny'] = 'data'
     check_checkboxes()
     if disk_selected:
         for disk in range(len(disk_selected)):
@@ -60,10 +58,21 @@ def apply():
     if disk_selected_rw:
         for disk in range(len(disk_selected_rw)):
             selected.append(f'DiskUsage.{disk_selected_rw[disk]}')
-    print(unsorted_data)
-    # Send Info to Arduino
     serialSendInt(make_selected_int())
-    # print(make_selected_int())
+    loop()
+    QtTest.QTest.qWait(1000)
+    loop()
+    QtTest.QTest.qWait(1000)
+    loop()
+
+
+# The main cycle of sending data
+def loop():
+    global unsorted_data
+    unsorted_data = organize_data()
+    unsorted_data['destiny'] = 'data'
+
+    # Send Info to Arduino
     serialSendDict(unsorted_data)
 
 
@@ -82,9 +91,10 @@ def serialSendDict(data):
         ints = make_selected_int()
         ints.pop(0)
         for int in ints:
+            # QtTest.QTest.qWait(100)
             val = take_what_you_need(int)
             txs = int + ',' + ','.join(map(str, val)) + ';'
-            print(txs)
+            # print(txs)
             serial.write(txs.encode())
 
 

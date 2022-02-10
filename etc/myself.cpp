@@ -1,17 +1,20 @@
 #include <LiquidCrystal_I2C.h>
 #include "Parser.h"
 #include "AsyncStream.h"
+#include <GParser.h>
 AsyncStream<50> serial(&Serial, ';');
-int names[10];
+int names[4];
+int am_names;
+int am;
 
 int CPU[2];
-int CPUClocks[1];
+String CPUClocks[1];
 int GPU[2];
-int GPUClocks[2];
+String GPUClocks[2];
 int GPUmem[2];
 int RAMuse[1];
-int RAMmem[2];
-int Uptime[1];
+String RAMmem[2];
+String Uptime[1];
 
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
@@ -21,6 +24,7 @@ void setup() {
   lcd.init();
   lcd.backlight();
 }
+
 
 // 1 - CPU        -   2
 // 2 - CPUClocks  -   1
@@ -32,66 +36,87 @@ void setup() {
 // 8 - Uptime     -   1
 
 void parsing() {
-  if (serial.available()) {
-    Parser data(serial.buf, ',');
-    int ints[20];
-    data.parseInts(ints);
-    int am = data.split();
-    
-    switch (ints[0]) {
-      case 99:
-        for (int i = 0; i < am; i++) {
-          delay(5);
-          names[i-1] = ints[i];
-        }
-        break;
+    if (serial.available()) {
+      GParser data(serial.buf, ',');
+      Serial.println(serial.buf);
+      Serial.println(CPUClocks[0]);
+      am_names = data.split();
+//      for (byte i = 0; i < am; i++) Serial.println(data[i]);
+      switch (data.getInt(0)) {
+        case 99:
+          am = am_names - 1;
+          for (int i = 1; i < am_names; i++) names[i-1] = data.getInt(i);
+          break;
+        case 1:
+          for (int i = 0; i < am_names; i++) CPU[i-1] = data.getInt(i);
+          break;
+        case 2:
+          CPUClocks[0] = String(data[1]);
+          break;
+        case 3:
+          for (int i = 0; i < am_names; i++) GPU[i-1] = data.getInt(i);
+          break;
+        case 4:
+          for (int i = 0; i < am_names; i++) GPUClocks[i-1] = String(data[i]);
+          break;
+        case 5:
+          for (int i = 0; i < am_names; i++) GPUmem[i-1] = data.getInt(i);
+          break;
+        case 6:
+          RAMuse[0] = data.getInt(1);
+          break;
+        case 7:
+          for (int i = 0; i < am_names; i++) RAMmem[i-1] = String(data[i]);
+          break;
+        case 8:
+          Uptime[0] = String(data[1]);
+          break;
+      }
+      display();
+    }
+}
+
+void display() {
+  lcd.clear();
+  for (int i = 0; i < (am); i++) {
+    lcd.setCursor(0, i);
+    lcd.print(names[i]);
+    lcd.setCursor(2, i);
+    switch (names[i]) {
       case 1:
-        for (int i = 0; i < am; i++) {
-          delay(5);
-          CPU[i-1] = ints[i];
-        }
-        Serial.println(CPU[0]);
-        break;
+      lcd.print(CPU[0]);
+      lcd.print(' ');
+      lcd.print(CPU[1]);
+      break;
       case 2:
-        CPUClocks[0] = ints[1];
-        Serial.println(CPUClocks[0]);
-        break;
+      lcd.print(CPUClocks[0]);
+      break;
       case 3:
-        for (int i = 0; i < am; i++) {
-          delay(5);
-          GPU[i-1] = ints[i];
-        }
-        Serial.println(GPU[0]);
-        break;
+      lcd.print(GPU[0]);
+      lcd.print(' ');
+      lcd.print(GPU[1]);
+      break;
       case 4:
-        for (int i = 0; i < am; i++) {
-          delay(5);
-          GPUClocks[i-1] = ints[i];
-        }
-        Serial.println(GPUClocks[0]);
-        break;
+      lcd.print(GPUClocks[0]);
+      lcd.print(' ');
+      lcd.print(GPUClocks[1]);
+      break;   
       case 5:
-        for (int i = 0; i < am; i++) {
-          delay(5);
-          GPUmem[i-1] = ints[i];
-        }
-        Serial.println(GPUmem[0]);
-        break;
+      lcd.print(GPUmem[0]);
+      lcd.print(' ');
+      lcd.print(GPUmem[1]);
+      break;
       case 6:
-        RAMuse[0] = ints[1];
-        Serial.println(RAMuse[0]);
-        break;
+      lcd.print(RAMuse[0]);
+      break;
       case 7:
-        for (int i = 0; i < am; i++) {
-          delay(5);
-          RAMmem[i-1] = ints[i];
-        }
-        Serial.println(RAMmem[0]);
-        break;
+      lcd.print(RAMmem[0]);
+      lcd.print(' ');
+      lcd.print(RAMmem[1]);
+      break;
       case 8:
-        Uptime[0] = ints[1];
-        Serial.println(Uptime[0]);
-        break;
+      lcd.print(Uptime[0]);
+      break;           
     }
   }
 }
@@ -99,9 +124,3 @@ void parsing() {
 void loop() {
   parsing();
 }
-
-
-       // lcd.clear();
-       // lcd.home();
-       // lcd.print(data[1]);
-       // lcd.setCursor(0,1);

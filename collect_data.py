@@ -22,7 +22,7 @@ def parse_sensors(Type, SensorName):
     sensors = hwmon.Sensor(SensorType=Type, Name=SensorName)
     if Type == 'Throughput':
         for s in sensors:
-            # things.append(human_bytes(s.Value))
+            things.append(human_bytes(s.Value))
             things.append(s.Value)
     else:
         for s in sensors:
@@ -50,10 +50,10 @@ def organize_data():
     Uptime = time.strftime("%H:%M:%S", time.gmtime(uptime()))
 
     if len(DiskUsedSpace) > 1:
-        hw_vars = {'CPUTemp': CPUTemp, 'GPUTemp': GPUTemp, 'CPUClocks': CPUClocks, 'GPUClocks': GPUClocks,
-                   'GPUmemClocks': GPUmemClocks, 'CPULoad': CPULoad,
-                   'GPULoad': GPULoad, 'RAMuse': RAMuse, 'RAMused': RAMused, 'RAMfree': RAMfree,
-                   'GPUmem': GPUmem, 'GPUmemFree': GPUmemFree, 'Uptime': Uptime}
+        hw_vars = {'CPUTemp': int(CPUTemp), 'GPUTemp': int(GPUTemp), 'CPUClocks': CPUClocks, 'GPUClocks': GPUClocks,
+                   'GPUmemClocks': GPUmemClocks, 'CPULoad': int(CPULoad),
+                   'GPULoad': int(GPULoad), 'RAMuse': int(RAMuse), 'RAMused': RAMused, 'RAMfree': RAMfree,
+                   'GPUmem': int(GPUmem), 'GPUmemFree': int(GPUmemFree), 'Uptime': Uptime}
         for i in range(len(DiskUsedSpace)):
             hw_vars[f'DiskUsedSpace[{i}]'] = DiskUsedSpace[i]
         for i in range(len(DiskRead)):
@@ -79,21 +79,3 @@ def human_bytes(B):
 
 if __name__ == '__main__':
     print(organize_data())
-    pass
-
-# to_print = (f'CPUTemp = {CPUTemp} C\n'
-#             f'GPUTemp = {GPUTemp} C\n'
-#             f'CPUClocks = {CPUClocks} MHz\n'
-#             f'GPUClocks = {GPUClocks} MHz\n'
-#             f'GPUmemClocks = {GPUmemClocks} MHz\n'
-#             f'CPULoad = {CPULoad} %\n'
-#             f'GPULoad = {GPULoad} %\n'
-#             f'RAMuse = {RAMuse} %\n'
-#             f'RAMused = {RAMused} GB\n'
-#             f'RAMfree = {RAMfree} GB\n'
-#             f'GPUmem = {GPUmem} MB\n'
-#             f'GPUmemFree = {GPmemFree} MB\n'
-#             f'Uptime = {Uptime} \n'
-#             f'DiskUsedSpace = {DiskUsedSpace} \n'
-#             f'DiskRead = {DiskRead} \n'
-#             f'DiskWrite = {DiskWrite} \n')
