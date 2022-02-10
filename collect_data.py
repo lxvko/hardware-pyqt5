@@ -1,5 +1,5 @@
 from uptime import uptime
-
+import pythoncom
 import time
 import wmi
 
@@ -8,8 +8,9 @@ hw_names = ['Core Average', 'GPU Core', 'CPU Core #1', 'GPU Core', 'GPU Memory',
             'Memory Used', 'Memory Available', 'GPU Memory Used', 'GPU Memory Free', 'Used Space', 'Read Rate',
             'Write Rate']
 
+# pythoncom.CoInitialize()
 hwmon = wmi.WMI(namespace="root/LibreHardwareMonitor")
-
+# pythoncom.CoUninitialize()
 
 def parse_sensor(Type, SensorName):
     sensors = hwmon.Sensor(SensorType=Type, Name=SensorName)

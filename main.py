@@ -1,10 +1,12 @@
 import time
+import threading
 
 from PyQt5 import QtWidgets, uic, QtGui, QtTest
 from PyQt5.QtSerialPort import QSerialPort, QSerialPortInfo
 from PyQt5.QtCore import QIODevice
 from collect_data import organize_data
 
+import pythoncom
 import wmi
 import sys
 
@@ -27,6 +29,7 @@ disk_list = []
 disk_selected = []
 disk_selected_rw = []
 unsorted_data = {}
+infinity = 'not the limit'
 
 # Launching the UI
 app = QtWidgets.QApplication([])
@@ -59,21 +62,23 @@ def apply():
         for disk in range(len(disk_selected_rw)):
             selected.append(f'DiskUsage.{disk_selected_rw[disk]}')
     serialSendInt(make_selected_int())
-    loop()
-    QtTest.QTest.qWait(1000)
-    loop()
-    QtTest.QTest.qWait(1000)
-    loop()
+    thread_loop.start()
+    # QtTest.QTest.qWait(1000)
+    # loop()
+    # QtTest.QTest.qWait(1000)
+    # loop()
 
 
 # The main cycle of sending data
 def loop():
-    global unsorted_data
-    unsorted_data = organize_data()
-    unsorted_data['destiny'] = 'data'
-
-    # Send Info to Arduino
-    serialSendDict(unsorted_data)
+    while infinity == 'not the limit':
+        global unsorted_data
+        unsorted_data = organize_data()
+        unsorted_data['destiny'] = 'data'
+        print(unsorted_data)
+        QtTest.QTest.qWait(1000)
+        # Send Info to Arduino
+        serialSendDict(unsorted_data)
 
 
 # Sending data to Arduino
@@ -82,7 +87,7 @@ def serialSendInt(data):
         data.pop(0)
         txs = '99,' + ','.join(map(str, data)) + ';'
         # print(txs)
-        serial.write(txs.encode())
+        # serial.write(txs.encode())
 
 
 # Sending data to Arduino
@@ -95,7 +100,7 @@ def serialSendDict(data):
             val = take_what_you_need(int)
             txs = int + ',' + ','.join(map(str, val)) + ';'
             # print(txs)
-            serial.write(txs.encode())
+            # serial.write(txs.encode())
 
 
 # Make selected to int for Arduino
@@ -273,6 +278,8 @@ def onOpen():
 
 # Close button
 def close():
+    global infinity
+    infinity = 'limit'
     serial.close()
     sys.exit(app.exec_())
 
@@ -302,6 +309,7 @@ ui.applybutton.clicked.connect(apply)
 ui.exitbutton.clicked.connect(close)
 ui.openbutton.clicked.connect(onOpen)
 
+thread_loop = threading.Thread(target=loop, args=())
 serial.readyRead.connect(onRead)
 
 # Start UI
