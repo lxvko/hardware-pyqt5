@@ -6,12 +6,25 @@ from collect_data import organize_data
 import wmi
 import sys
 
+# The value of the selected ones
+# cpu               1     - CPU                - CPUTemp, CPULoad
+# cpuclocks         2     - CPUClocks          - CPUClocks
+# gpu               3     - GPU                - GPUTemp, GPULoad
+# gpuclocks         4     - GPUClocks          - GPUClocks, GPUmemClocks
+# gpumem            5     - GPUmem             - GPUmem, GPUmemFree
+# ramuse            6     - RAMuse             - RAMuse
+# rammem            7     - RAMmem             - RAMused, RAMfree
+# uptime            8     - Uptime             - Uptime
+# diskspace0123...  9     - DiskSpace.DiskName - DiskUsedSpace[i]
+# diskusage0123...  10    - DiskUsage.DiskName - DiskRead[i], DiskWrite[i]
+
 # Variables
 count = 0
 selected = []
 disk_list = []
 disk_selected = []
 disk_selected_rw = []
+unsorted_data = {}
 
 # Launching the UI
 app = QtWidgets.QApplication([])
@@ -34,23 +47,12 @@ for d in disks:
     disk_list.append(d.Caption)
 
 
-# Read Arduino port
-def onRead():
-    rx = serial.readLine()
-    rxs = str(rx, 'utf-8').strip()
-    data = rxs.split(',')
-    # print(data)
-
-
-# Open port button
-def onOpen():
-    serial.setPortName(ui.comlist.currentText())
-    serial.open(QIODevice.ReadWrite)
-
-
 # Apply button
 def apply():
-    needed_data = []
+    # sorted_data = []
+    global unsorted_data
+    unsorted_data = organize_data()
+    unsorted_data['destiny'] = 'data'
     check_checkboxes()
     if disk_selected:
         for disk in range(len(disk_selected)):
@@ -58,73 +60,32 @@ def apply():
     if disk_selected_rw:
         for disk in range(len(disk_selected_rw)):
             selected.append(f'DiskUsage.{disk_selected_rw[disk]}')
-    print(make_selected_int())
-
-    # serialSend(make_selected_int())
-    unsorted_data = organize_data()
-    for i in range(count):
-        needed_data.extend(take_what_you_need(selected[i]))
-        needed_data.append(';')
-    print(needed_data)
-    # serialSend()
-    # serialSend(sorted_data)
-
-# Имеется:
-# Номера выбранных функций
-# Нужно:
-# Если выбирается int, то за ним следом отправляются данные
-
-# The value of the selected ones
-# cpu               1     - CPU                - CPUTemp, CPULoad
-# cpuclocks         2     - CPUClocks          - CPUClocks
-# gpu               3     - GPU                - GPUTemp, GPULoad
-# gpuclocks         4     - GPUClocks          - GPUClocks, GPUmemClocks
-# gpumem            5     - GPUmem             - GPUmem, GPUmemFree
-# ramuse            6     - RAMuse             - RAMuse
-# rammem            7     - RAMmem             - RAMused, RAMfree
-# uptime            8     - Uptime             - Uptime
-# diskspace0123...  9     - DiskSpace.DiskName - DiskUsedSpace[i]
-# diskusage0123...  10    - DiskUsage.DiskName - DiskRead[i], DiskWrite[i]
-
-
-# Close button
-def close():
-    serial.close()
-    sys.exit(app.exec_())
-
-
-# Returns the data in the desired form
-def take_what_you_need(sel):
-    if sel == 'CPU':
-        return ['CPUTemp', 'CPULoad']
-    if sel == 'CPUClocks':
-        return ['CPUClocks']
-    if sel == 'GPU':
-        return ['GPUTemp', 'GPULoad']
-    if sel == 'GPUClocks':
-        return ['GPUClocks', 'GPUmemClocks']
-    if sel == 'GPUmem':
-        return ['GPUmem', 'GPUmemFree']
-    if sel == 'RAMuse':
-        return ['RAMuse']
-    if sel == 'RAMmem':
-        return ['RAMused', 'RAMfree']
-    if sel == 'Uptime':
-        return ['Uptime']
+    print(unsorted_data)
+    # Send Info to Arduino
+    serialSendInt(make_selected_int())
+    # print(make_selected_int())
+    serialSendDict(unsorted_data)
 
 
 # Sending data to Arduino
-def serialSend(data):
+def serialSendInt(data):
     if data[0] == 'info':
         data.pop(0)
         txs = '99,' + ','.join(map(str, data)) + ';'
-        print(txs)
+        # print(txs)
         serial.write(txs.encode())
-    if data[0] == 'govno':
-        data.pop(0)
-        txs = '1,' + ','.join(map(str, data)) + ';'
-        print(txs)
-        serial.write(txs.encode())
+
+
+# Sending data to Arduino
+def serialSendDict(data):
+    if data['destiny'] == 'data':
+        ints = make_selected_int()
+        ints.pop(0)
+        for int in ints:
+            val = take_what_you_need(int)
+            txs = int + ',' + ','.join(map(str, val)) + ';'
+            print(txs)
+            serial.write(txs.encode())
 
 
 # Make selected to int for Arduino
@@ -150,61 +111,24 @@ def make_selected_int():
     return selected_int
 
 
-# Reading and counting clicks
-def display(val):
-    global count
-    if val == 2 and count < 4:
-        count += 1
-        if count == 4:
-            edit_checkboxes('disable')
-    elif val == 0 and count <= 4:
-        count -= 1
-        if count == 3:
-            edit_checkboxes('enable')
-
-
-# Reading and counting clicks
-def display_disks(val):
-    global count
-    global disk_selected
-    if val in disk_list and count < 4:
-        if val in disk_selected and count <= 4:
-            disk_selected.remove(val)
-            count -= 1
-            if count == 3:
-                edit_checkboxes('enable')
-            return
-        disk_selected.append(val)
-        count += 1
-        if count == 4:
-            edit_checkboxes('disable')
-    elif val == 0:
-        count = count - len(disk_selected)
-        if count != 4:
-            edit_checkboxes('enable')
-        disk_selected.clear()
-
-
-# Reading and counting clicks
-def display_disks_rw(val):
-    global count
-    global disk_selected_rw
-    if val in disk_list and count < 4:
-        if val in disk_selected:
-            disk_selected_rw.remove(val)
-            count -= 1
-            if count == 3:
-                edit_checkboxes('enable')
-            return
-        disk_selected_rw.append(val)
-        count += 1
-        if count == 4:
-            edit_checkboxes('disable')
-    elif val == 0:
-        count = count - len(disk_selected_rw)
-        if count != 4:
-            edit_checkboxes('enable')
-        disk_selected_rw.clear()
+# Returns the data in the desired form
+def take_what_you_need(sel):
+    if sel == '1':
+        return [unsorted_data.get('CPUTemp'), unsorted_data.get('CPULoad')]
+    if sel == '2':
+        return [unsorted_data.get('CPUClocks')]
+    if sel == '3':
+        return [unsorted_data.get('GPUTemp'), unsorted_data.get('GPULoad')]
+    if sel == '4':
+        return [unsorted_data.get('GPUClocks'), unsorted_data.get('GPUmemClocks')]
+    if sel == '5':
+        return [unsorted_data.get('GPUmem'), unsorted_data.get('GPUmemFree')]
+    if sel == '6':
+        return [unsorted_data.get('RAMuse')]
+    if sel == '7':
+        return [unsorted_data.get('RAMused'), unsorted_data.get('RAMfree')]
+    if sel == '8':
+        return [unsorted_data.get('Uptime')]
 
 
 # Counting the number of pressed checkboxes
@@ -264,6 +188,83 @@ def edit_checkboxes(state):
         ui.uptime.setCheckable(True)
         ui.diskspace.setCheckable(True)
         ui.diskusage.setCheckable(True)
+
+
+# Reading and counting clicks
+def display(val):
+    global count
+    if val == 2 and count < 4:
+        count += 1
+        if count == 4:
+            edit_checkboxes('disable')
+    elif val == 0 and count <= 4:
+        count -= 1
+        if count == 3:
+            edit_checkboxes('enable')
+
+
+# Reading and counting clicks
+def display_disks(val):
+    global count
+    global disk_selected
+    if val in disk_list and count < 4:
+        if val in disk_selected and count <= 4:
+            disk_selected.remove(val)
+            count -= 1
+            if count == 3:
+                edit_checkboxes('enable')
+            return
+        disk_selected.append(val)
+        count += 1
+        if count == 4:
+            edit_checkboxes('disable')
+    elif val == 0:
+        count = count - len(disk_selected)
+        if count != 4:
+            edit_checkboxes('enable')
+        disk_selected.clear()
+
+
+# Reading and counting clicks
+def display_disks_rw(val):
+    global count
+    global disk_selected_rw
+    if val in disk_list and count < 4:
+        if val in disk_selected:
+            disk_selected_rw.remove(val)
+            count -= 1
+            if count == 3:
+                edit_checkboxes('enable')
+            return
+        disk_selected_rw.append(val)
+        count += 1
+        if count == 4:
+            edit_checkboxes('disable')
+    elif val == 0:
+        count = count - len(disk_selected_rw)
+        if count != 4:
+            edit_checkboxes('enable')
+        disk_selected_rw.clear()
+
+
+# Read Arduino port
+def onRead():
+    rx = serial.readLine()
+    rxs = str(rx, 'utf-8').strip()
+    data = rxs.split(',')
+    # print(data)
+
+
+# Open port button
+def onOpen():
+    serial.setPortName(ui.comlist.currentText())
+    serial.open(QIODevice.ReadWrite)
+
+
+# Close button
+def close():
+    serial.close()
+    sys.exit(app.exec_())
 
 
 # Checkboxes
