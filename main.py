@@ -1,14 +1,11 @@
-import time
-import threading
-
 from PyQt5 import QtWidgets, uic, QtGui, QtTest
 from PyQt5.QtSerialPort import QSerialPort, QSerialPortInfo
 from PyQt5.QtCore import QIODevice
-from collect_data import organize_data
+from uptime import uptime
 
-import pythoncom
 import wmi
 import sys
+import time
 
 # The value of the selected ones
 # cpu               1     - CPU                - CPUTemp, CPULoad
@@ -30,6 +27,10 @@ disk_selected = []
 disk_selected_rw = []
 unsorted_data = {}
 infinity = 'not the limit'
+hw_sensors = ['Temperature', 'Clock', 'Load', 'Data', 'SmallData', 'Throughput']
+hw_names = ['Core Average', 'GPU Core', 'CPU Core #1', 'GPU Core', 'GPU Memory', 'CPU Total', 'GPU Core', 'Memory',
+            'Memory Used', 'Memory Available', 'GPU Memory Used', 'GPU Memory Free', 'Used Space', 'Read Rate',
+            'Write Rate']
 
 # Launching the UI
 app = QtWidgets.QApplication([])
@@ -45,9 +46,10 @@ for port in ports:
     portlist.append(port.portName())
 ui.comlist.addItems(portlist)
 
-# Scanning physical disks
+# Preparation for parsing
 hwmon = wmi.WMI()
 disks = hwmon.Win32_DiskDrive()
+hwmon = wmi.WMI(namespace="root/LibreHardwareMonitor")
 for d in disks:
     disk_list.append(d.Caption)
 
@@ -62,23 +64,21 @@ def apply():
         for disk in range(len(disk_selected_rw)):
             selected.append(f'DiskUsage.{disk_selected_rw[disk]}')
     serialSendInt(make_selected_int())
-    thread_loop.start()
-    # QtTest.QTest.qWait(1000)
-    # loop()
-    # QtTest.QTest.qWait(1000)
-    # loop()
+    loop()
 
 
 # The main cycle of sending data
 def loop():
     while infinity == 'not the limit':
         global unsorted_data
+        print_flag = ['print']
+        QtTest.QTest.qWait(500)
         unsorted_data = organize_data()
-        unsorted_data['destiny'] = 'data'
-        print(unsorted_data)
-        QtTest.QTest.qWait(1000)
-        # Send Info to Arduino
-        serialSendDict(unsorted_data)
+        if unsorted_data is not None:
+            unsorted_data['destiny'] = 'data'
+            # Send Info to Arduino
+            serialSendDict(unsorted_data)
+            serialSendInt(print_flag)
 
 
 # Sending data to Arduino
@@ -86,8 +86,15 @@ def serialSendInt(data):
     if data[0] == 'info':
         data.pop(0)
         txs = '99,' + ','.join(map(str, data)) + ';'
-        # print(txs)
-        # serial.write(txs.encode())
+        serial.write(txs.encode())
+    if data[0] == 'hello':
+        data.pop(0)
+        txs = '95,' + ','.join(map(str, data)) + ';'
+        serial.write(txs.encode())
+    if data[0] == 'print':
+        data.pop(0)
+        txs = '98,' + 'print' + ';'
+        serial.write(txs.encode())
 
 
 # Sending data to Arduino
@@ -96,11 +103,10 @@ def serialSendDict(data):
         ints = make_selected_int()
         ints.pop(0)
         for int in ints:
-            # QtTest.QTest.qWait(100)
             val = take_what_you_need(int)
             txs = int + ',' + ','.join(map(str, val)) + ';'
             # print(txs)
-            # serial.write(txs.encode())
+            serial.write(txs.encode())
 
 
 # Make selected to int for Arduino
@@ -274,6 +280,9 @@ def onRead():
 def onOpen():
     serial.setPortName(ui.comlist.currentText())
     serial.open(QIODevice.ReadWrite)
+    hello = ['hello', '95']
+    QtTest.QTest.qWait(1500)
+    serialSendInt(hello)
 
 
 # Close button
@@ -282,6 +291,76 @@ def close():
     infinity = 'limit'
     serial.close()
     sys.exit(app.exec_())
+
+
+# Parsing a conventional sensor
+def parse_sensor(Type, SensorName):
+    sensors = hwmon.Sensor(SensorType=Type, Name=SensorName)
+    for s in sensors:
+        return round(s.Value, 3)
+
+
+# Parsing >1 sensor
+def parse_sensors(Type, SensorName):
+    things = []
+    sensors = hwmon.Sensor(SensorType=Type, Name=SensorName)
+    if Type == 'Throughput':
+        for s in sensors:
+            things.append(human_bytes(s.Value))
+            things.append(s.Value)
+    else:
+        for s in sensors:
+            thing = round(s.Value, 2)
+            things.append(str(thing) + ' %')
+    return things
+
+
+# Data organization function
+def organize_data():
+    CPUTemp = parse_sensor(hw_sensors[0], hw_names[0])
+    GPUTemp = parse_sensor(hw_sensors[0], hw_names[1])
+    CPUClocks = parse_sensor(hw_sensors[1], hw_names[2])
+    GPUClocks = parse_sensor(hw_sensors[1], hw_names[3])
+    GPUmemClocks = parse_sensor(hw_sensors[1], hw_names[4])
+    CPULoad = parse_sensor(hw_sensors[2], hw_names[5])
+    GPULoad = parse_sensor(hw_sensors[2], hw_names[6])
+    RAMuse = parse_sensor(hw_sensors[2], hw_names[7])
+    RAMused = parse_sensor(hw_sensors[3], hw_names[8])
+    RAMfree = parse_sensor(hw_sensors[3], hw_names[9])
+    GPUmem = parse_sensor(hw_sensors[4], hw_names[10])
+    GPUmemFree = parse_sensor(hw_sensors[4], hw_names[11])
+    DiskUsedSpace = parse_sensors(hw_sensors[2], hw_names[12])
+    DiskRead = parse_sensors(hw_sensors[5], hw_names[13])
+    DiskWrite = parse_sensors(hw_sensors[5], hw_names[14])
+    Uptime = time.strftime("%H:%M:%S", time.gmtime(uptime()))
+
+    if len(DiskUsedSpace) > 1:
+        hw_vars = {'CPUTemp': int(CPUTemp), 'GPUTemp': int(GPUTemp), 'CPUClocks': CPUClocks, 'GPUClocks': GPUClocks,
+                   'GPUmemClocks': GPUmemClocks, 'CPULoad': int(CPULoad),
+                   'GPULoad': int(GPULoad), 'RAMuse': int(RAMuse), 'RAMused': RAMused, 'RAMfree': RAMfree,
+                   'GPUmem': int(GPUmem), 'GPUmemFree': int(GPUmemFree), 'Uptime': Uptime}
+        for i in range(len(DiskUsedSpace)):
+            hw_vars[f'DiskUsedSpace[{i}]'] = DiskUsedSpace[i]
+        for i in range(len(DiskRead)):
+            hw_vars[f'DiskRead[{i}]'] = DiskRead[i]
+        for i in range(len(DiskWrite)):
+            hw_vars[f'DiskWrite[{i}]'] = DiskWrite[i]
+        return hw_vars
+
+
+# Byte Conversion
+def human_bytes(B):
+    B = float(B)
+    KB = float(1024)
+    MB = float(KB ** 2)  # 1,048,576
+    GB = float(KB ** 3)  # 1,073,741,824
+
+    if B < KB:
+        return '{0} {1}'.format(B, 'Bytes' if 0 == B > 1 else 'Byte')
+    elif KB <= B < MB:
+        return '{0:.2f} KB'.format(B / KB)
+    elif MB <= B < GB:
+        return '{0:.2f} MB'.format(B / MB)
 
 
 # Checkboxes
@@ -309,9 +388,9 @@ ui.applybutton.clicked.connect(apply)
 ui.exitbutton.clicked.connect(close)
 ui.openbutton.clicked.connect(onOpen)
 
-thread_loop = threading.Thread(target=loop, args=())
 serial.readyRead.connect(onRead)
 
-# Start UI
-ui.show()
-app.exec()
+if __name__ == '__main__':
+    # Start UI
+    ui.show()
+    app.exec()

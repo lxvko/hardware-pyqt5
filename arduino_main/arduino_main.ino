@@ -47,6 +47,16 @@ void parsing() {
           am = am_names - 1;
           for (int i = 1; i < am_names; i++) names[i-1] = data.getInt(i);
           break;
+        case 98:
+          display();
+          break;
+        case 95:
+          lcd.clear();
+          lcd.setCursor(7, 1);
+          lcd.print("Hello");
+          lcd.setCursor(3, 2);
+          lcd.print("Make a choice");
+          break;
         case 1:
           for (int i = 0; i < am_names; i++) CPU[i-1] = data.getInt(i);
           break;
@@ -72,7 +82,6 @@ void parsing() {
           Uptime[0] = String(data[1]);
           break;
       }
-    display();
     }
 }
 
@@ -123,6 +132,4 @@ void display() {
 
 void loop() {
   parsing();
-//  delay(30);
-//  display();
 }
