@@ -1,5 +1,5 @@
-from PyQt5 import QtWidgets, uic, QtGui, QtTest
 from PyQt5.QtSerialPort import QSerialPort, QSerialPortInfo
+from PyQt5 import QtWidgets, uic, QtGui, QtTest
 from PyQt5.QtCore import QIODevice
 from uptime import uptime
 
@@ -77,10 +77,10 @@ def loop():
         unsorted_data = organize_data()
         if unsorted_data is not None:
             unsorted_data['destiny'] = 'data'
+
             # Send Info to Arduino
             serialSendDict(unsorted_data)
             serialSendInt(print_flag)
-
 
 
 # Sending data to Arduino
@@ -111,7 +111,7 @@ def serialSendDict(data):
         for int in ints:
             val = take_what_you_need(int)
             txs = int + ',' + ','.join(map(str, val)) + ';'
-            print(txs)
+            # print(txs)
             serial.write(txs.encode())
 
 
@@ -390,7 +390,8 @@ def organize_data():
     if len(DiskUsedSpace) > 1:
         hw_vars = {'CPUTemp': int(CPUTemp), 'GPUTemp': int(GPUTemp), 'CPUClocks': CPUClocks, 'GPUClocks': GPUClocks,
                    'GPUmemClocks': GPUmemClocks, 'CPULoad': int(CPULoad),
-                   'GPULoad': int(GPULoad), 'RAMuse': int(RAMuse), 'RAMused': str(RAMused) + 'GB', 'RAMall': str(RAMall) + 'GB',
+                   'GPULoad': int(GPULoad), 'RAMuse': int(RAMuse), 'RAMused': str(RAMused) + 'GB',
+                   'RAMall': str(RAMall) + 'GB',
                    'GPUmem': int(GPUmem), 'GPUmemFree': int(GPUmemFree), 'Uptime': Uptime}
         for i in range(len(DiskUsedSpace)):
             hw_vars[f'DiskUsedSpace[{i}]'] = DiskUsedSpace[i]
