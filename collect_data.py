@@ -23,7 +23,7 @@ def parse_sensors(Type, SensorName):
     if Type == 'Throughput':
         for s in sensors:
             things.append(human_bytes(s.Value))
-            things.append(s.Value)
+            # things.append(s.Value)
     else:
         for s in sensors:
             thing = round(s.Value, 2)
@@ -50,6 +50,7 @@ def organize_data():
     Uptime = time.strftime("%H:%M:%S", time.gmtime(uptime()))
 
     if len(DiskUsedSpace) > 1:
+        print(DiskRead)
         hw_vars = {'CPUTemp': int(CPUTemp), 'GPUTemp': int(GPUTemp), 'CPUClocks': CPUClocks, 'GPUClocks': GPUClocks,
                    'GPUmemClocks': GPUmemClocks, 'CPULoad': int(CPULoad),
                    'GPULoad': int(GPULoad), 'RAMuse': int(RAMuse), 'RAMused': RAMused, 'RAMfree': RAMfree,

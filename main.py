@@ -63,8 +63,9 @@ def apply():
     if disk_selected_rw:
         for disk in range(len(disk_selected_rw)):
             selected.append(f'DiskUsage.{disk_selected_rw[disk]}')
-    serialSendInt(make_selected_int())
-    loop()
+    if count > 0:
+        serialSendInt(make_selected_int())
+        loop()
 
 
 # The main cycle of sending data
@@ -81,19 +82,24 @@ def loop():
             serialSendInt(print_flag)
 
 
+
 # Sending data to Arduino
 def serialSendInt(data):
     if data[0] == 'info':
         data.pop(0)
         txs = '99,' + ','.join(map(str, data)) + ';'
         serial.write(txs.encode())
-    if data[0] == 'hello':
-        data.pop(0)
-        txs = '95,' + ','.join(map(str, data)) + ';'
-        serial.write(txs.encode())
-    if data[0] == 'print':
+    elif data[0] == 'print':
         data.pop(0)
         txs = '98,' + 'print' + ';'
+        serial.write(txs.encode())
+    elif data[0] == 'bye':
+        data.pop(0)
+        txs = '97,' + 'bye' + ';'
+        serial.write(txs.encode())
+    elif data[0] == 'hello':
+        data.pop(0)
+        txs = '95,' + ','.join(map(str, data)) + ';'
         serial.write(txs.encode())
 
 
@@ -105,7 +111,7 @@ def serialSendDict(data):
         for int in ints:
             val = take_what_you_need(int)
             txs = int + ',' + ','.join(map(str, val)) + ';'
-            # print(txs)
+            print(txs)
             serial.write(txs.encode())
 
 
@@ -129,6 +135,37 @@ def make_selected_int():
         selected_int.append('7')
     if 'Uptime' in selected:
         selected_int.append('8')
+    try:
+        if f'DiskSpace.{disk_list[0]}' in selected:
+            selected_int.append('9')
+    except IndexError:
+        pass
+    try:
+        if f'DiskSpace.{disk_list[1]}' in selected:
+            selected_int.append('10')
+    except IndexError:
+        pass
+    try:
+        if f'DiskSpace.{disk_list[2]}' in selected:
+            selected_int.append('11')
+    except IndexError:
+        pass
+    try:
+        if f'DiskUsage.{disk_list[0]}' in selected:
+            selected_int.append('12')
+    except IndexError:
+        pass
+    try:
+        if f'DiskUsage.{disk_list[1]}' in selected:
+            selected_int.append('13')
+    except IndexError:
+        pass
+    try:
+        if f'DiskUsage.{disk_list[2]}' in selected:
+            selected_int.append('14')
+    except IndexError:
+        pass
+
     return selected_int
 
 
@@ -147,9 +184,21 @@ def take_what_you_need(sel):
     if sel == '6':
         return [unsorted_data.get('RAMuse')]
     if sel == '7':
-        return [unsorted_data.get('RAMused'), unsorted_data.get('RAMfree')]
+        return [unsorted_data.get('RAMused'), unsorted_data.get('RAMall')]
     if sel == '8':
-        return [unsorted_data.get('Uptime')]
+        return ['Uptime: ' + unsorted_data.get('Uptime')]
+    if sel == '9':
+        return ['DiskSpace0: ' + unsorted_data.get('DiskUsedSpace[0]')]
+    if sel == '10':
+        return ['DiskSpace1: ' + unsorted_data.get('DiskUsedSpace[1]')]
+    if sel == '11':
+        return ['DiskSpace2: ' + unsorted_data.get('DiskUsedSpace[2]')]
+    if sel == '12':
+        return ['DiskRead0  ' + unsorted_data.get('DiskRead[0]'), 'DiskWrite0 ' + unsorted_data.get('DiskWrite[0]')]
+    if sel == '13':
+        return ['DiskRead1  ' + unsorted_data.get('DiskRead[1]'), 'DiskWrite1 ' + unsorted_data.get('DiskWrite[1]')]
+    if sel == '14':
+        return ['DiskRead2  ' + unsorted_data.get('DiskRead[2]'), 'DiskWrite2 ' + unsorted_data.get('DiskWrite[2]')]
 
 
 # Counting the number of pressed checkboxes
@@ -251,7 +300,7 @@ def display_disks_rw(val):
     global count
     global disk_selected_rw
     if val in disk_list and count < 4:
-        if val in disk_selected:
+        if val in disk_selected_rw:
             disk_selected_rw.remove(val)
             count -= 1
             if count == 3:
@@ -281,7 +330,7 @@ def onOpen():
     serial.setPortName(ui.comlist.currentText())
     serial.open(QIODevice.ReadWrite)
     hello = ['hello', '95']
-    QtTest.QTest.qWait(1500)
+    QtTest.QTest.qWait(3000)
     serialSendInt(hello)
 
 
@@ -289,6 +338,9 @@ def onOpen():
 def close():
     global infinity
     infinity = 'limit'
+    bye = ['bye', '97']
+    serialSendInt(bye)
+    QtTest.QTest.qWait(1000)
     serial.close()
     sys.exit(app.exec_())
 
@@ -297,7 +349,7 @@ def close():
 def parse_sensor(Type, SensorName):
     sensors = hwmon.Sensor(SensorType=Type, Name=SensorName)
     for s in sensors:
-        return round(s.Value, 3)
+        return round(s.Value, 2)
 
 
 # Parsing >1 sensor
@@ -307,7 +359,7 @@ def parse_sensors(Type, SensorName):
     if Type == 'Throughput':
         for s in sensors:
             things.append(human_bytes(s.Value))
-            things.append(s.Value)
+            # things.append(s.Value)
     else:
         for s in sensors:
             thing = round(s.Value, 2)
@@ -326,7 +378,8 @@ def organize_data():
     GPULoad = parse_sensor(hw_sensors[2], hw_names[6])
     RAMuse = parse_sensor(hw_sensors[2], hw_names[7])
     RAMused = parse_sensor(hw_sensors[3], hw_names[8])
-    RAMfree = parse_sensor(hw_sensors[3], hw_names[9])
+    RAMall = parse_sensor(hw_sensors[3], hw_names[9])
+    RAMall = round(float(RAMall) + float(RAMused), 2)
     GPUmem = parse_sensor(hw_sensors[4], hw_names[10])
     GPUmemFree = parse_sensor(hw_sensors[4], hw_names[11])
     DiskUsedSpace = parse_sensors(hw_sensors[2], hw_names[12])
@@ -337,7 +390,7 @@ def organize_data():
     if len(DiskUsedSpace) > 1:
         hw_vars = {'CPUTemp': int(CPUTemp), 'GPUTemp': int(GPUTemp), 'CPUClocks': CPUClocks, 'GPUClocks': GPUClocks,
                    'GPUmemClocks': GPUmemClocks, 'CPULoad': int(CPULoad),
-                   'GPULoad': int(GPULoad), 'RAMuse': int(RAMuse), 'RAMused': RAMused, 'RAMfree': RAMfree,
+                   'GPULoad': int(GPULoad), 'RAMuse': int(RAMuse), 'RAMused': str(RAMused) + 'GB', 'RAMall': str(RAMall) + 'GB',
                    'GPUmem': int(GPUmem), 'GPUmemFree': int(GPUmemFree), 'Uptime': Uptime}
         for i in range(len(DiskUsedSpace)):
             hw_vars[f'DiskUsedSpace[{i}]'] = DiskUsedSpace[i]

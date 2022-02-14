@@ -15,6 +15,13 @@ int GPUmem[2];
 int RAMuse[1];
 String RAMmem[2];
 String Uptime[1];
+String DiskSpace0[1];
+String DiskSpace1[1];
+String DiskSpace2[1];
+String DiskUsage0[2];
+String DiskUsage1[2];
+String DiskUsage2[2];
+
 
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
@@ -47,6 +54,23 @@ void parsing() {
           am = am_names - 1;
           for (int i = 1; i < am_names; i++) names[i-1] = data.getInt(i);
           break;
+        case 98:
+          display();
+          break;
+        case 97:
+          lcd.clear();
+          lcd.setCursor(8, 1);
+          lcd.print("Bye");
+          lcd.setCursor(3, 2);
+          lcd.print("Have a nice day");
+          break;
+        case 95:
+          lcd.clear();
+          lcd.setCursor(7, 1);
+          lcd.print("Hello");
+          lcd.setCursor(3, 2);
+          lcd.print("Make a choice");
+          break;
         case 1:
           for (int i = 0; i < am_names; i++) CPU[i-1] = data.getInt(i);
           break;
@@ -71,8 +95,25 @@ void parsing() {
         case 8:
           Uptime[0] = String(data[1]);
           break;
+        case 9:
+          DiskSpace0[0] = String(data[1]);
+          break;
+        case 10:
+          DiskSpace1[0] = String(data[1]);
+          break;
+        case 11:
+          DiskSpace2[0] = String(data[1]);
+          break;
+        case 12:
+          for (int i = 0; i < am_names; i++) DiskUsage0[i-1] = String(data[i]);
+          break;
+        case 13:
+          for (int i = 0; i < am_names; i++) DiskUsage1[i-1] = String(data[i]);
+          break;
+        case 14:
+          for (int i = 0; i < am_names; i++) DiskUsage2[i-1] = String(data[i]);
+          break;
       }
-      display();
     }
 }
 
@@ -116,13 +157,35 @@ void display() {
       break;
       case 8:
       lcd.print(Uptime[0]);
-      break;           
+      break;      
+      case 9:
+      lcd.print(DiskSpace0[0]);
+      break;
+      case 10:
+      lcd.print(DiskSpace1[0]);
+      break;
+      case 11:
+      lcd.print(DiskSpace2[0]);
+      break;   
+      case 12:
+      lcd.print(DiskUsage0[0]);
+      lcd.print(' ');
+      lcd.print(DiskUsage0[1]);
+      break;
+      case 13:
+      lcd.print(DiskUsage1[0]);
+      lcd.print(' ');
+      lcd.print(DiskUsage1[1]);
+      break;
+      case 14:
+      lcd.print(DiskUsage2[0]);
+      lcd.print(' ');
+      lcd.print(DiskUsage2[1]);
+      break;  
     }
   }
 }
 
 void loop() {
   parsing();
-//  delay(30);
-//  display();
 }
