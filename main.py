@@ -318,14 +318,6 @@ def display_disks_rw(val):
         disk_selected_rw.clear()
 
 
-# Read Arduino port
-def onRead():
-    rx = serial.readLine()
-    rxs = str(rx, 'utf-8').strip()
-    data = rxs.split(',')
-    # print(data)
-
-
 # Open port button
 def onOpen():
     serial.setPortName(ui.comlist.currentText())
@@ -454,8 +446,6 @@ ui.combodiskusage.textActivated.connect(display_disks_rw)
 ui.applybutton.clicked.connect(apply)
 ui.exitbutton.clicked.connect(close)
 ui.openbutton.clicked.connect(onOpen)
-
-serial.readyRead.connect(onRead)
 
 if __name__ == '__main__':
     # Start UI
