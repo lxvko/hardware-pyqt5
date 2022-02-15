@@ -27,7 +27,6 @@ disk_selected = []
 disk_selected_rw = []
 unsorted_data = {}
 
-bye = ['bye', '97']
 infinity = 'not the limit'
 hw_sensors = ['Temperature', 'Clock', 'Load', 'Data', 'SmallData', 'Throughput']
 hw_names = ['Core Average', 'GPU Core', 'CPU Core #1', 'GPU Core', 'GPU Memory', 'CPU Total', 'GPU Core', 'Memory',
@@ -331,6 +330,7 @@ def onOpen():
 def close():
     global infinity
     infinity = 'limit'
+    bye = ['bye', '97']
     serialSendInt(bye)
     QtTest.QTest.qWait(1000)
 
