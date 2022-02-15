@@ -12,9 +12,9 @@ import time
 # cpuclocks         2     - CPUClocks          - CPUClocks
 # gpu               3     - GPU                - GPUTemp, GPULoad
 # gpuclocks         4     - GPUClocks          - GPUClocks, GPUmemClocks
-# gpumem            5     - GPUmem             - GPUmem, GPUmemFree
+# gpumem            5     - GPUmem             - GPUmem, GPUmemAll
 # ramuse            6     - RAMuse             - RAMuse
-# rammem            7     - RAMmem             - RAMused, RAMfree
+# rammem            7     - RAMmem             - RAMused, RAMall
 # uptime            8     - Uptime             - Uptime
 # diskspace0123...  9     - DiskSpace.DiskName - DiskUsedSpace[i]
 # diskusage0123...  10    - DiskUsage.DiskName - DiskRead[i], DiskWrite[i]
@@ -26,10 +26,12 @@ disk_list = []
 disk_selected = []
 disk_selected_rw = []
 unsorted_data = {}
+
+bye = ['bye', '97']
 infinity = 'not the limit'
 hw_sensors = ['Temperature', 'Clock', 'Load', 'Data', 'SmallData', 'Throughput']
 hw_names = ['Core Average', 'GPU Core', 'CPU Core #1', 'GPU Core', 'GPU Memory', 'CPU Total', 'GPU Core', 'Memory',
-            'Memory Used', 'Memory Available', 'GPU Memory Used', 'GPU Memory Free', 'Used Space', 'Read Rate',
+            'Memory Used', 'Memory Available', 'GPU Memory Used', 'GPU Memory Total', 'Used Space', 'Read Rate',
             'Write Rate']
 
 # Launching the UI
@@ -111,7 +113,6 @@ def serialSendDict(data):
         for int in ints:
             val = take_what_you_need(int)
             txs = int + ',' + ','.join(map(str, val)) + ';'
-            # print(txs)
             serial.write(txs.encode())
 
 
@@ -180,7 +181,7 @@ def take_what_you_need(sel):
     if sel == '4':
         return [unsorted_data.get('GPUClocks'), unsorted_data.get('GPUmemClocks')]
     if sel == '5':
-        return [unsorted_data.get('GPUmem'), unsorted_data.get('GPUmemFree')]
+        return [unsorted_data.get('GPUmem'), unsorted_data.get('GPUmemAll')]
     if sel == '6':
         return [unsorted_data.get('RAMuse')]
     if sel == '7':
@@ -338,9 +339,9 @@ def onOpen():
 def close():
     global infinity
     infinity = 'limit'
-    bye = ['bye', '97']
     serialSendInt(bye)
     QtTest.QTest.qWait(1000)
+
     serial.close()
     sys.exit(app.exec_())
 
@@ -359,7 +360,6 @@ def parse_sensors(Type, SensorName):
     if Type == 'Throughput':
         for s in sensors:
             things.append(human_bytes(s.Value))
-            # things.append(s.Value)
     else:
         for s in sensors:
             thing = round(s.Value, 2)
@@ -379,26 +379,29 @@ def organize_data():
     RAMuse = parse_sensor(hw_sensors[2], hw_names[7])
     RAMused = parse_sensor(hw_sensors[3], hw_names[8])
     RAMall = parse_sensor(hw_sensors[3], hw_names[9])
-    RAMall = round(float(RAMall) + float(RAMused), 2)
     GPUmem = parse_sensor(hw_sensors[4], hw_names[10])
-    GPUmemFree = parse_sensor(hw_sensors[4], hw_names[11])
+    GPUmemAll = parse_sensor(hw_sensors[4], hw_names[11])
     DiskUsedSpace = parse_sensors(hw_sensors[2], hw_names[12])
     DiskRead = parse_sensors(hw_sensors[5], hw_names[13])
     DiskWrite = parse_sensors(hw_sensors[5], hw_names[14])
     Uptime = time.strftime("%H:%M:%S", time.gmtime(uptime()))
 
     if len(DiskUsedSpace) > 1:
-        hw_vars = {'CPUTemp': int(CPUTemp), 'GPUTemp': int(GPUTemp), 'CPUClocks': CPUClocks, 'GPUClocks': GPUClocks,
-                   'GPUmemClocks': GPUmemClocks, 'CPULoad': int(CPULoad),
-                   'GPULoad': int(GPULoad), 'RAMuse': int(RAMuse), 'RAMused': str(RAMused) + 'GB',
-                   'RAMall': str(RAMall) + 'GB',
-                   'GPUmem': int(GPUmem), 'GPUmemFree': int(GPUmemFree), 'Uptime': Uptime}
-        for i in range(len(DiskUsedSpace)):
-            hw_vars[f'DiskUsedSpace[{i}]'] = DiskUsedSpace[i]
-        for i in range(len(DiskRead)):
-            hw_vars[f'DiskRead[{i}]'] = DiskRead[i]
-        for i in range(len(DiskWrite)):
-            hw_vars[f'DiskWrite[{i}]'] = DiskWrite[i]
+        try:
+            RAMall = round(float(RAMall) + float(RAMused), 2)
+            hw_vars = {'CPUTemp': int(CPUTemp), 'GPUTemp': int(GPUTemp), 'CPUClocks': CPUClocks, 'GPUClocks': GPUClocks,
+                       'GPUmemClocks': GPUmemClocks, 'CPULoad': int(CPULoad),
+                       'GPULoad': int(GPULoad), 'RAMuse': int(RAMuse), 'RAMused': str(RAMused) + 'GB',
+                       'RAMall': str(RAMall) + 'GB',
+                       'GPUmem': int(GPUmem), 'GPUmemAll': int(GPUmemAll), 'Uptime': Uptime}
+            for i in range(len(DiskUsedSpace)):
+                hw_vars[f'DiskUsedSpace[{i}]'] = DiskUsedSpace[i]
+            for i in range(len(DiskRead)):
+                hw_vars[f'DiskRead[{i}]'] = DiskRead[i]
+            for i in range(len(DiskWrite)):
+                hw_vars[f'DiskWrite[{i}]'] = DiskWrite[i]
+        except TypeError:
+            return None
         return hw_vars
 
 
@@ -419,19 +422,29 @@ def human_bytes(B):
 
 # Checkboxes
 ui.cpu.stateChanged.connect(display)
+ui.cpu.setToolTip('Выводится температура и загрузка ЦП')
 ui.cpuclocks.stateChanged.connect(display)
+ui.cpuclocks.setToolTip('Выводится текущая частота ЦП')
 ui.gpu.stateChanged.connect(display)
+ui.gpu.setToolTip('Выводится температура и загрузка ГП')
 ui.gpuclocks.stateChanged.connect(display)
+ui.gpuclocks.setToolTip('Выводится текущая частота ядра и частота памяти ГП')
 ui.gpumem.stateChanged.connect(display)
+ui.gpumem.setToolTip('Выводится информация об используемой видеопамяти')
 ui.ramuse.stateChanged.connect(display)
+ui.ramuse.setToolTip('Выводится информация об используемой ОЗУ графически')
 ui.rammem.stateChanged.connect(display)
+ui.rammem.setToolTip('Выводится информация об используемой ОЗУ')
 ui.uptime.stateChanged.connect(display)
+ui.uptime.setToolTip('Выводится время работы компьютера с момента включения')
 
 # Combined boxes
+ui.diskspace.setToolTip('Выводится информация о занимаемом пространстве диска')
 ui.diskspace.stateChanged.connect(ui.combodiskspace.setEnabled)
 ui.diskspace.stateChanged.connect(display_disks)
 ui.combodiskspace.addItems(disk_list)
 ui.combodiskspace.textActivated.connect(display_disks)
+ui.diskusage.setToolTip('Выводится информация о текущей скорости записи и чтения диска')
 ui.diskusage.stateChanged.connect(ui.combodiskusage.setEnabled)
 ui.diskusage.stateChanged.connect(display_disks_rw)
 ui.combodiskusage.addItems(disk_list)
