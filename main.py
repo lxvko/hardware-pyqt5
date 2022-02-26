@@ -78,7 +78,6 @@ def loop():
         unsorted_data = organize_data()
         if unsorted_data is not None:
             unsorted_data['destiny'] = 'data'
-            print(unsorted_data)
 
             # Send Info to Arduino
             serialSendDict(unsorted_data)
