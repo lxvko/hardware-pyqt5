@@ -74,7 +74,7 @@ def loop():
     while infinity == 'not the limit':
         global unsorted_data
         print_flag = ['print']
-        QtTest.QTest.qWait(500)
+        QtTest.QTest.qWait(777)
         unsorted_data = organize_data()
         if unsorted_data is not None:
             unsorted_data['destiny'] = 'data'
@@ -355,7 +355,7 @@ def parse_sensors(Type, SensorName):
     else:
         for s in sensors:
             thing = round(s.Value, 2)
-            things.append(str(thing) + ' %')
+            things.append(str(thing) + ' % ')
     return things
 
 
@@ -388,10 +388,14 @@ def organize_data():
                        'GPUmem': int(GPUmem), 'GPUmemAll': int(GPUmemAll), 'Uptime': Uptime}
             for i in range(len(DiskUsedSpace)):
                 hw_vars[f'DiskUsedSpace[{i}]'] = DiskUsedSpace[i]
+            alt_i = len(DiskRead) - 1
             for i in range(len(DiskRead)):
-                hw_vars[f'DiskRead[{i}]'] = DiskRead[i]
+                hw_vars[f'DiskRead[{i}]'] = DiskRead[alt_i]
+                alt_i -= 1
+            alt_i = len(DiskWrite) - 1
             for i in range(len(DiskWrite)):
-                hw_vars[f'DiskWrite[{i}]'] = DiskWrite[i]
+                hw_vars[f'DiskWrite[{i}]'] = DiskWrite[alt_i]
+                alt_i -= 1
         except TypeError:
             return None
         return hw_vars

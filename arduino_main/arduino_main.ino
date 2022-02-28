@@ -2,31 +2,34 @@
 #include "Parser.h"
 #include "AsyncStream.h"
 #include <GParser.h>
-AsyncStream<50> serial(&Serial, ';');
+
 int names[4];
 int am_names;
 int am;
 int perc;
 
 int CPU[2];
-String CPUClocks[1];
 int GPU[2];
-String GPUClocks[2];
 int GPUmem[2];
 int RAMuse[1];
+
 String RAMmem[2];
 String Uptime[1];
+String CPUClocks[1];
+String GPUClocks[2];
 String DiskSpace0[1];
 String DiskSpace1[1];
 String DiskSpace2[1];
 String DiskUsage0[2];
 String DiskUsage1[2];
 String DiskUsage2[2];
+
 byte row8[8] = {0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111};
 byte left_empty[8] = {0b11111, 0b10000, 0b10000, 0b10000, 0b10000, 0b10000, 0b10000, 0b11111};
 byte right_empty[8] = {0b11111, 0b00001, 0b00001, 0b00001, 0b00001, 0b00001, 0b00001, 0b11111};
 byte center_empty[8] = {0b11111, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b11111};
 
+AsyncStream<50> serial(&Serial, ';');
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 void setup()
@@ -118,13 +121,12 @@ void display()
       lcd.setCursor(17, s);
       lcd.print(CPU[1]);
       lcd.print("%");
-      lcd.setCursor(0, s);
       s = s + 1;
       break;
     case 2:
       lcd.print("CPU Core ");
       lcd.print(CPUClocks[0]);
-      lcd.print(" MHz");
+      lcd.print(" MHz ");
       s = s + 1;
       break;
     case 3:
@@ -139,25 +141,22 @@ void display()
       for (int i = 0; i < perc; i++) lcd.write(4);
       lcd.setCursor(17, s);
       lcd.print(GPU[1]);
-      lcd.print("%");
-      lcd.setCursor(0, s);
+      lcd.print("% ");
       s = s + 1;
       break;
     case 4:
       lcd.print(GPUClocks[0]);
-      lcd.print(" MHz");
-      lcd.print(' ');
+      lcd.print(" MHz ");
       lcd.print(GPUClocks[1]);
-      lcd.print(" MHz");
+      lcd.print(" MHz ");
       s = s + 1;
       break;
     case 5:
       lcd.print("GPU: ");
       lcd.print(GPUmem[0]);
-      lcd.print("MB");
-      lcd.print(" - ");
+      lcd.print("MB - ");
       lcd.print(GPUmem[1]);
-      lcd.print("MB");
+      lcd.print("MB ");
       s = s + 1;
       break;
     case 6:
@@ -170,8 +169,7 @@ void display()
       for (int i = 0; i < perc; i++) lcd.write(4);
       lcd.setCursor(17, s);
       lcd.print(RAMuse[0]);
-      lcd.print("%");
-      lcd.setCursor(0, s);
+      lcd.print("% ");
       s = s + 1;
       break;
     case 7:
@@ -185,22 +183,37 @@ void display()
     case 9: lcd.print(DiskSpace0[0]); s = s + 1; break;
     case 10: lcd.print(DiskSpace1[0]); s = s + 1; break;
     case 11: lcd.print(DiskSpace2[0]); s = s + 1; break;
-    case 12: 
-      lcd.print(DiskUsage0[0]); 
+    case 12:
+      lcd.setCursor(19, s);
+      lcd.print(' ');
+      lcd.setCursor(0, s);
+      lcd.print(DiskUsage0[0]);
+      lcd.setCursor(19, s + 1);
+      lcd.print(' ');
       lcd.setCursor(0, s + 1);
       lcd.print(DiskUsage0[1]);
       lcd.setCursor(0, s);
       s = s + 2;
       break;
     case 13:
+      lcd.setCursor(19, s);
+      lcd.print(' ');
+      lcd.setCursor(0, s);
       lcd.print(DiskUsage1[0]);
+      lcd.setCursor(19, s + 1);
+      lcd.print(' ');
       lcd.setCursor(0, s + 1);
       lcd.print(DiskUsage1[1]);
       lcd.setCursor(0, s);
       s = s + 2;
       break;
     case 14:
+      lcd.setCursor(19, s);
+      lcd.print(' ');
+      lcd.setCursor(0, s);
       lcd.print(DiskUsage2[0]);
+      lcd.setCursor(19, s + 1);
+      lcd.print(' ');
       lcd.setCursor(0, s + 1);
       lcd.print(DiskUsage2[1]);
       lcd.setCursor(0, s);
