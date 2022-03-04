@@ -351,6 +351,7 @@ def parse_sensors(Type, SensorName):
     sensors = hwmon.Sensor(SensorType=Type, Name=SensorName)
     if Type == 'Throughput':
         for s in sensors:
+            print(s)
             things.append(human_bytes(s.Value))
     else:
         for s in sensors:
