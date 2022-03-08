@@ -6,18 +6,6 @@ from fetch_data import get_data
 import wmi
 import sys
 
-# The value of the selected ones
-# cpu               1     - CPU                - CPUTemp, CPULoad
-# cpuclocks         2     - CPUClocks          - CPUClocks
-# gpu               3     - GPU                - GPUTemp, GPULoad
-# gpuclocks         4     - GPUClocks          - GPUClocks, GPUmemClocks
-# gpumem            5     - GPUmem             - GPUmem, GPUmemAll
-# ramuse            6     - RAMuse             - RAMuse
-# rammem            7     - RAMmem             - RAMused, RAMall
-# uptime            8     - Uptime             - Uptime
-# diskspace0123...  9     - DiskSpace.DiskName - DiskUsedSpace[i]
-# diskusage0123...  10    - DiskUsage.DiskName - DiskRead[i], DiskWrite[i]
-
 # Variables
 count = 0
 selected = []
