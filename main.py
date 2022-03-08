@@ -187,6 +187,7 @@ def display_disks_rw(val):
         disk_selected_rw.clear()
 
 
+# Open button
 def Open():
     onOpen(ui.comlist.currentText())
 
@@ -210,12 +211,14 @@ ui.uptime.stateChanged.connect(display)
 ui.uptime.setToolTip('Выводится время работы компьютера с момента включения')
 
 # Combined boxes
-ui.diskspace.setToolTip('Выводится информация о занимаемом пространстве диска')
+ui.diskspace.setToolTip(
+    'Выводится информация о занимаемом пространстве диска')
 ui.diskspace.stateChanged.connect(ui.combodiskspace.setEnabled)
 ui.diskspace.stateChanged.connect(display_disks)
 ui.combodiskspace.addItems(disk_list)
 ui.combodiskspace.textActivated.connect(display_disks)
-ui.diskusage.setToolTip('Выводится информация о текущей скорости записи и чтения диска')
+ui.diskusage.setToolTip(
+    'Выводится информация о текущей скорости записи и чтения диска')
 ui.diskusage.stateChanged.connect(ui.combodiskusage.setEnabled)
 ui.diskusage.stateChanged.connect(display_disks_rw)
 ui.combodiskusage.addItems(disk_list)
