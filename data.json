@@ -1,0 +1,726 @@
+{
+  "id": 0,
+  "Text": "Sensor",
+  "Min": "Min",
+  "Value": "Value",
+  "Max": "Max",
+  "ImageURL": "",
+  "Children": [
+    {
+      "id": 1,
+      "Text": "DESKTOP-JA2QF31",
+      "Min": "",
+      "Value": "",
+      "Max": "",
+      "ImageURL": "images_icon/computer.png",
+      "Children": [
+        {
+          "id": 2,
+          "Text": "Intel Core i3-6100U",
+          "Min": "",
+          "Value": "",
+          "Max": "",
+          "ImageURL": "images_icon/cpu.png",
+          "Children": [
+            {
+              "id": 3,
+              "Text": "Powers",
+              "Min": "",
+              "Value": "",
+              "Max": "",
+              "ImageURL": "images_icon/power.png",
+              "Children": [
+                {
+                  "id": 4,
+                  "Text": "CPU Package",
+                  "Min": "3,5 W",
+                  "Value": "5,2 W",
+                  "Max": "10,0 W",
+                  "SensorId": "/intelcpu/0/power/0",
+                  "Type": "Power",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 5,
+                  "Text": "CPU Cores",
+                  "Min": "1,1 W",
+                  "Value": "2,7 W",
+                  "Max": "6,9 W",
+                  "SensorId": "/intelcpu/0/power/1",
+                  "Type": "Power",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 6,
+                  "Text": "CPU Graphics",
+                  "Min": "0,0 W",
+                  "Value": "0,0 W",
+                  "Max": "1,6 W",
+                  "SensorId": "/intelcpu/0/power/2",
+                  "Type": "Power",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 7,
+                  "Text": "CPU Memory",
+                  "Min": "0,7 W",
+                  "Value": "0,9 W",
+                  "Max": "2,2 W",
+                  "SensorId": "/intelcpu/0/power/3",
+                  "Type": "Power",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "id": 8,
+              "Text": "Clocks",
+              "Min": "",
+              "Value": "",
+              "Max": "",
+              "ImageURL": "images_icon/clock.png",
+              "Children": [
+                {
+                  "id": 9,
+                  "Text": "Bus Speed",
+                  "Min": "100,2 MHz",
+                  "Value": "100,2 MHz",
+                  "Max": "100,2 MHz",
+                  "SensorId": "/intelcpu/0/clock/0",
+                  "Type": "Clock",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 10,
+                  "Text": "CPU Core #1",
+                  "Min": "601,0 MHz",
+                  "Value": "1703,0 MHz",
+                  "Max": "2304,2 MHz",
+                  "SensorId": "/intelcpu/0/clock/1",
+                  "Type": "Clock",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 11,
+                  "Text": "CPU Core #2",
+                  "Min": "701,2 MHz",
+                  "Value": "1101,9 MHz",
+                  "Max": "2304,2 MHz",
+                  "SensorId": "/intelcpu/0/clock/2",
+                  "Type": "Clock",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "id": 12,
+              "Text": "Temperatures",
+              "Min": "",
+              "Value": "",
+              "Max": "",
+              "ImageURL": "images_icon/temperature.png",
+              "Children": [
+                {
+                  "id": 13,
+                  "Text": "CPU Core #1",
+                  "Min": "49,0 \u00b0C",
+                  "Value": "53,0 \u00b0C",
+                  "Max": "64,0 \u00b0C",
+                  "SensorId": "/intelcpu/0/temperature/0",
+                  "Type": "Temperature",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 14,
+                  "Text": "CPU Core #2",
+                  "Min": "49,0 \u00b0C",
+                  "Value": "52,0 \u00b0C",
+                  "Max": "63,0 \u00b0C",
+                  "SensorId": "/intelcpu/0/temperature/1",
+                  "Type": "Temperature",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 15,
+                  "Text": "CPU Package",
+                  "Min": "50,0 \u00b0C",
+                  "Value": "53,0 \u00b0C",
+                  "Max": "64,0 \u00b0C",
+                  "SensorId": "/intelcpu/0/temperature/2",
+                  "Type": "Temperature",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 16,
+                  "Text": "CPU Core #1 Distance to TjMax",
+                  "Min": "36,0 \u00b0C",
+                  "Value": "47,0 \u00b0C",
+                  "Max": "51,0 \u00b0C",
+                  "SensorId": "/intelcpu/0/temperature/3",
+                  "Type": "Temperature",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 17,
+                  "Text": "CPU Core #2 Distance to TjMax",
+                  "Min": "37,0 \u00b0C",
+                  "Value": "48,0 \u00b0C",
+                  "Max": "51,0 \u00b0C",
+                  "SensorId": "/intelcpu/0/temperature/4",
+                  "Type": "Temperature",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 18,
+                  "Text": "Core Max",
+                  "Min": "49,0 \u00b0C",
+                  "Value": "53,0 \u00b0C",
+                  "Max": "64,0 \u00b0C",
+                  "SensorId": "/intelcpu/0/temperature/5",
+                  "Type": "Temperature",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 19,
+                  "Text": "Core Average",
+                  "Min": "49,0 \u00b0C",
+                  "Value": "52,5 \u00b0C",
+                  "Max": "63,5 \u00b0C",
+                  "SensorId": "/intelcpu/0/temperature/6",
+                  "Type": "Temperature",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "id": 20,
+              "Text": "Load",
+              "Min": "",
+              "Value": "",
+              "Max": "",
+              "ImageURL": "images_icon/load.png",
+              "Children": [
+                {
+                  "id": 21,
+                  "Text": "CPU Total",
+                  "Min": "7,4 %",
+                  "Value": "28,5 %",
+                  "Max": "100,0 %",
+                  "SensorId": "/intelcpu/0/load/0",
+                  "Type": "Load",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 22,
+                  "Text": "CPU Core #1",
+                  "Min": "6,3 %",
+                  "Value": "23,4 %",
+                  "Max": "100,0 %",
+                  "SensorId": "/intelcpu/0/load/1",
+                  "Type": "Load",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 23,
+                  "Text": "CPU Core #2",
+                  "Min": "1,6 %",
+                  "Value": "33,6 %",
+                  "Max": "100,0 %",
+                  "SensorId": "/intelcpu/0/load/2",
+                  "Type": "Load",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 24,
+          "Text": "Generic Memory",
+          "Min": "",
+          "Value": "",
+          "Max": "",
+          "ImageURL": "images_icon/ram.png",
+          "Children": [
+            {
+              "id": 25,
+              "Text": "Load",
+              "Min": "",
+              "Value": "",
+              "Max": "",
+              "ImageURL": "images_icon/load.png",
+              "Children": [
+                {
+                  "id": 26,
+                  "Text": "Memory",
+                  "Min": "25,4 %",
+                  "Value": "39,7 %",
+                  "Max": "58,4 %",
+                  "SensorId": "/ram/load/0",
+                  "Type": "Load",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 27,
+                  "Text": "Virtual Memory",
+                  "Min": "76,7 %",
+                  "Value": "82,2 %",
+                  "Max": "90,1 %",
+                  "SensorId": "/ram/load/1",
+                  "Type": "Load",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "id": 28,
+              "Text": "Data",
+              "Min": "",
+              "Value": "",
+              "Max": "",
+              "ImageURL": "images_icon/power.png",
+              "Children": [
+                {
+                  "id": 29,
+                  "Text": "Memory Used",
+                  "Min": "2,0 GB",
+                  "Value": "3,1 GB",
+                  "Max": "4,6 GB",
+                  "SensorId": "/ram/data/0",
+                  "Type": "Data",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 30,
+                  "Text": "Memory Available",
+                  "Min": "3,3 GB",
+                  "Value": "4,7 GB",
+                  "Max": "5,9 GB",
+                  "SensorId": "/ram/data/1",
+                  "Type": "Data",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 31,
+                  "Text": "Virtual Memory Used",
+                  "Min": "8,0 GB",
+                  "Value": "9,4 GB",
+                  "Max": "10,1 GB",
+                  "SensorId": "/ram/data/2",
+                  "Type": "Data",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 32,
+                  "Text": "Virtual Memory Available",
+                  "Min": "1,0 GB",
+                  "Value": "2,0 GB",
+                  "Max": "2,4 GB",
+                  "SensorId": "/ram/data/3",
+                  "Type": "Data",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 33,
+          "Text": "NVIDIA GeForce 940MX",
+          "Min": "",
+          "Value": "",
+          "Max": "",
+          "ImageURL": "images_icon/nvidia.png",
+          "Children": [
+            {
+              "id": 34,
+              "Text": "Clocks",
+              "Min": "",
+              "Value": "",
+              "Max": "",
+              "ImageURL": "images_icon/clock.png",
+              "Children": [
+                {
+                  "id": 35,
+                  "Text": "GPU Core",
+                  "Min": "135,0 MHz",
+                  "Value": "405,0 MHz",
+                  "Max": "405,0 MHz",
+                  "SensorId": "/gpu-nvidia/0/clock/0",
+                  "Type": "Clock",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 36,
+                  "Text": "GPU Memory",
+                  "Min": "405,0 MHz",
+                  "Value": "405,0 MHz",
+                  "Max": "405,0 MHz",
+                  "SensorId": "/gpu-nvidia/0/clock/4",
+                  "Type": "Clock",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "id": 37,
+              "Text": "Temperatures",
+              "Min": "",
+              "Value": "",
+              "Max": "",
+              "ImageURL": "images_icon/temperature.png",
+              "Children": [
+                {
+                  "id": 38,
+                  "Text": "GPU Core",
+                  "Min": "53,0 \u00b0C",
+                  "Value": "55,0 \u00b0C",
+                  "Max": "58,0 \u00b0C",
+                  "SensorId": "/gpu-nvidia/0/temperature/0",
+                  "Type": "Temperature",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 39,
+                  "Text": "GPU Hot Spot",
+                  "Min": "62,0 \u00b0C",
+                  "Value": "64,0 \u00b0C",
+                  "Max": "67,9 \u00b0C",
+                  "SensorId": "/gpu-nvidia/0/temperature/2",
+                  "Type": "Temperature",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "id": 40,
+              "Text": "Load",
+              "Min": "",
+              "Value": "",
+              "Max": "",
+              "ImageURL": "images_icon/load.png",
+              "Children": [
+                {
+                  "id": 41,
+                  "Text": "GPU Core",
+                  "Min": "0,0 %",
+                  "Value": "0,0 %",
+                  "Max": "1,0 %",
+                  "SensorId": "/gpu-nvidia/0/load/0",
+                  "Type": "Load",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 42,
+                  "Text": "GPU Memory Controller",
+                  "Min": "0,0 %",
+                  "Value": "0,0 %",
+                  "Max": "0,0 %",
+                  "SensorId": "/gpu-nvidia/0/load/1",
+                  "Type": "Load",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 43,
+                  "Text": "GPU Video Engine",
+                  "Min": "0,0 %",
+                  "Value": "0,0 %",
+                  "Max": "0,0 %",
+                  "SensorId": "/gpu-nvidia/0/load/2",
+                  "Type": "Load",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 44,
+                  "Text": "GPU Bus",
+                  "Min": "0,0 %",
+                  "Value": "0,0 %",
+                  "Max": "8,0 %",
+                  "SensorId": "/gpu-nvidia/0/load/3",
+                  "Type": "Load",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "id": 45,
+              "Text": "Data",
+              "Min": "",
+              "Value": "",
+              "Max": "",
+              "ImageURL": "images_icon/power.png",
+              "Children": [
+                {
+                  "id": 46,
+                  "Text": "GPU Memory Free",
+                  "Min": "2019,0 MB",
+                  "Value": "2019,0 MB",
+                  "Max": "2019,0 MB",
+                  "SensorId": "/gpu-nvidia/0/smalldata/0",
+                  "Type": "SmallData",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 47,
+                  "Text": "GPU Memory Used",
+                  "Min": "28,0 MB",
+                  "Value": "28,0 MB",
+                  "Max": "28,0 MB",
+                  "SensorId": "/gpu-nvidia/0/smalldata/1",
+                  "Type": "SmallData",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 48,
+                  "Text": "GPU Memory Total",
+                  "Min": "2048,0 MB",
+                  "Value": "2048,0 MB",
+                  "Max": "2048,0 MB",
+                  "SensorId": "/gpu-nvidia/0/smalldata/2",
+                  "Type": "SmallData",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "id": 49,
+              "Text": "Throughput",
+              "Min": "",
+              "Value": "",
+              "Max": "",
+              "ImageURL": "images_icon/throughput.png",
+              "Children": [
+                {
+                  "id": 50,
+                  "Text": "GPU PCIe Rx",
+                  "Min": "0,0 KB/s",
+                  "Value": "16,6 MB/s",
+                  "Max": "77,1 MB/s",
+                  "SensorId": "/gpu-nvidia/0/throughput/0",
+                  "Type": "Throughput",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 51,
+                  "Text": "GPU PCIe Tx",
+                  "Min": "0,0 KB/s",
+                  "Value": "0,0 KB/s",
+                  "Max": "1000,0 KB/s",
+                  "SensorId": "/gpu-nvidia/0/throughput/1",
+                  "Type": "Throughput",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 52,
+          "Text": "AMD R5SL480G",
+          "Min": "",
+          "Value": "",
+          "Max": "",
+          "ImageURL": "images_icon/hdd.png",
+          "Children": [
+            {
+              "id": 53,
+              "Text": "Load",
+              "Min": "",
+              "Value": "",
+              "Max": "",
+              "ImageURL": "images_icon/load.png",
+              "Children": [
+                {
+                  "id": 54,
+                  "Text": "Used Space",
+                  "Min": "23,1 %",
+                  "Value": "23,1 %",
+                  "Max": "23,1 %",
+                  "SensorId": "/hdd/0/load/0",
+                  "Type": "Load",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 55,
+                  "Text": "Write Activity",
+                  "Min": "0,0 %",
+                  "Value": "0,0 %",
+                  "Max": "68,2 %",
+                  "SensorId": "/hdd/0/load/32",
+                  "Type": "Load",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 56,
+                  "Text": "Total Activity",
+                  "Min": "0,0 %",
+                  "Value": "0,0 %",
+                  "Max": "100,0 %",
+                  "SensorId": "/hdd/0/load/33",
+                  "Type": "Load",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "id": 57,
+              "Text": "Throughput",
+              "Min": "",
+              "Value": "",
+              "Max": "",
+              "ImageURL": "images_icon/throughput.png",
+              "Children": [
+                {
+                  "id": 58,
+                  "Text": "Read Rate",
+                  "Min": "0,0 KB/s",
+                  "Value": "0,0 KB/s",
+                  "Max": "23,6 MB/s",
+                  "SensorId": "/hdd/0/throughput/34",
+                  "Type": "Throughput",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 59,
+                  "Text": "Write Rate",
+                  "Min": "0,0 KB/s",
+                  "Value": "14,9 KB/s",
+                  "Max": "6,7 MB/s",
+                  "SensorId": "/hdd/0/throughput/35",
+                  "Type": "Throughput",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 60,
+          "Text": "SSDPR-S400U-120-80",
+          "Min": "",
+          "Value": "",
+          "Max": "",
+          "ImageURL": "images_icon/hdd.png",
+          "Children": [
+            {
+              "id": 61,
+              "Text": "Load",
+              "Min": "",
+              "Value": "",
+              "Max": "",
+              "ImageURL": "images_icon/load.png",
+              "Children": [
+                {
+                  "id": 62,
+                  "Text": "Used Space",
+                  "Min": "34,1 %",
+                  "Value": "36,1 %",
+                  "Max": "36,1 %",
+                  "SensorId": "/hdd/1/load/0",
+                  "Type": "Load",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 63,
+                  "Text": "Write Activity",
+                  "Min": "0,0 %",
+                  "Value": "0,3 %",
+                  "Max": "100,0 %",
+                  "SensorId": "/hdd/1/load/32",
+                  "Type": "Load",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 64,
+                  "Text": "Total Activity",
+                  "Min": "0,0 %",
+                  "Value": "0,4 %",
+                  "Max": "100,0 %",
+                  "SensorId": "/hdd/1/load/33",
+                  "Type": "Load",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "id": 65,
+              "Text": "Throughput",
+              "Min": "",
+              "Value": "",
+              "Max": "",
+              "ImageURL": "images_icon/throughput.png",
+              "Children": [
+                {
+                  "id": 66,
+                  "Text": "Read Rate",
+                  "Min": "0,0 KB/s",
+                  "Value": "0,0 KB/s",
+                  "Max": "24,6 MB/s",
+                  "SensorId": "/hdd/1/throughput/34",
+                  "Type": "Throughput",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                },
+                {
+                  "id": 67,
+                  "Text": "Write Rate ",
+                  "Min": "0,0 KB/s",
+                  "Value": "88,2 KB/s",
+                  "Max": "170,0 MB/s",
+                  "SensorId": "/hdd/1/throughput/35",
+                  "Type": "Throughput",
+                  "ImageURL": "images/transparent.png",
+                  "Children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

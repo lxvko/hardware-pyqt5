@@ -1,11 +1,10 @@
-from PyQt5.QtSerialPort import QSerialPort, QSerialPortInfo
 from PyQt5 import QtWidgets, uic, QtGui, QtTest
-from PyQt5.QtCore import QIODevice
-from uptime import uptime
+from arduino import serialSendInt, serialSendDict, onOpen
+from arduino import get_ports, make_selected_int
+from fetch_data import get_data
 
 import wmi
 import sys
-import time
 
 # The value of the selected ones
 # cpu               1     - CPU                - CPUTemp, CPULoad
@@ -25,32 +24,21 @@ selected = []
 disk_list = []
 disk_selected = []
 disk_selected_rw = []
-unsorted_data = {}
+data = {}
 
 infinity = 'not the limit'
-hw_sensors = ['Temperature', 'Clock', 'Load', 'Data', 'SmallData', 'Throughput']
-hw_names = ['Core Average', 'GPU Core', 'CPU Core #1', 'GPU Core', 'GPU Memory', 'CPU Total', 'GPU Core', 'Memory',
-            'Memory Used', 'Memory Available', 'GPU Memory Used', 'GPU Memory Total', 'Used Space', 'Read Rate',
-            'Write Rate']
+
 
 # Launching the UI
 app = QtWidgets.QApplication([])
 ui = uic.loadUi('etc/hwmon.ui')
 ui.setWindowIcon(QtGui.QIcon('etc/icon.jpg'))
+ui.comlist.addItems(get_ports())
 
-# Configuring the Arduino Port
-serial = QSerialPort()
-serial.setBaudRate(115200)
-portlist = []
-ports = QSerialPortInfo().availablePorts()
-for port in ports:
-    portlist.append(port.portName())
-ui.comlist.addItems(portlist)
 
 # Preparation for parsing
 hwmon = wmi.WMI()
 disks = hwmon.Win32_DiskDrive()
-hwmon = wmi.WMI(namespace="root/LibreHardwareMonitor")
 for d in disks:
     disk_list.append(d.Caption)
 
@@ -60,145 +48,39 @@ def apply():
     check_checkboxes()
     if disk_selected:
         for disk in range(len(disk_selected)):
-            selected.append(f'DiskSpace.{disk_selected[disk]}')
+            selected.append(f'Disk Space {disk_selected[disk]}')
     if disk_selected_rw:
         for disk in range(len(disk_selected_rw)):
-            selected.append(f'DiskUsage.{disk_selected_rw[disk]}')
+            selected.append(f'Disk Usage {disk_selected_rw[disk]}')
     if count > 0:
-        serialSendInt(make_selected_int())
+        # Sending labels to Arduino
+        serialSendInt(make_selected_int(selected, disk_list))
+        # Main cycle
         loop()
 
 
 # The main cycle of sending data
 def loop():
     while infinity == 'not the limit':
-        global unsorted_data
-        print_flag = ['print']
-        QtTest.QTest.qWait(777)
-        unsorted_data = organize_data()
-        if unsorted_data is not None:
-            unsorted_data['destiny'] = 'data'
-
-            # Send Info to Arduino
-            serialSendDict(unsorted_data)
-            serialSendInt(print_flag)
+        QtTest.QTest.qWait(999)
+        data = get_data()
+        if data is not None:
+            # Send Data to Arduino
+            serialSendDict(data)
+            # Send Print Flag to Arduino
+            serialSendInt(['print'])
 
 
-# Sending data to Arduino
-def serialSendInt(data):
-    if data[0] == 'info':
-        data.pop(0)
-        txs = '99,' + ','.join(map(str, data)) + ';'
-        serial.write(txs.encode())
-    elif data[0] == 'print':
-        data.pop(0)
-        txs = '98,' + 'print' + ';'
-        serial.write(txs.encode())
-    elif data[0] == 'bye':
-        data.pop(0)
-        txs = '97,' + 'bye' + ';'
-        serial.write(txs.encode())
-    elif data[0] == 'hello':
-        data.pop(0)
-        txs = '95,' + ','.join(map(str, data)) + ';'
-        serial.write(txs.encode())
+# Close button
+def close():
+    global infinity
 
+    infinity = 'limit'
+    bye = ['bye', '97']
+    serialSendInt(bye)
 
-# Sending data to Arduino
-def serialSendDict(data):
-    if data['destiny'] == 'data':
-        ints = make_selected_int()
-        ints.pop(0)
-        for int in ints:
-            val = take_what_you_need(int)
-            txs = int + ',' + ','.join(map(str, val)) + ';'
-            serial.write(txs.encode())
-
-
-# Make selected to int for Arduino
-def make_selected_int():
-    selected_int = ['info']
-
-    if 'CPU' in selected:
-        selected_int.append('1')
-    if 'CPUClocks' in selected:
-        selected_int.append('2')
-    if 'GPU' in selected:
-        selected_int.append('3')
-    if 'GPUClocks' in selected:
-        selected_int.append('4')
-    if 'GPUmem' in selected:
-        selected_int.append('5')
-    if 'RAMuse' in selected:
-        selected_int.append('6')
-    if 'RAMmem' in selected:
-        selected_int.append('7')
-    if 'Uptime' in selected:
-        selected_int.append('8')
-    try:
-        if f'DiskSpace.{disk_list[0]}' in selected:
-            selected_int.append('9')
-    except IndexError:
-        pass
-    try:
-        if f'DiskSpace.{disk_list[1]}' in selected:
-            selected_int.append('10')
-    except IndexError:
-        pass
-    try:
-        if f'DiskSpace.{disk_list[2]}' in selected:
-            selected_int.append('11')
-    except IndexError:
-        pass
-    try:
-        if f'DiskUsage.{disk_list[0]}' in selected:
-            selected_int.append('12')
-    except IndexError:
-        pass
-    try:
-        if f'DiskUsage.{disk_list[1]}' in selected:
-            selected_int.append('13')
-    except IndexError:
-        pass
-    try:
-        if f'DiskUsage.{disk_list[2]}' in selected:
-            selected_int.append('14')
-    except IndexError:
-        pass
-
-    return selected_int
-
-
-# Returns the data in the desired form
-def take_what_you_need(sel):
-    if sel == '1':
-        return [unsorted_data.get('CPUTemp'), unsorted_data.get('CPULoad')]
-    if sel == '2':
-        return [unsorted_data.get('CPUClocks')]
-    if sel == '3':
-        return [unsorted_data.get('GPUTemp'), unsorted_data.get('GPULoad')]
-    if sel == '4':
-        return [unsorted_data.get('GPUClocks'), unsorted_data.get('GPUmemClocks')]
-    if sel == '5':
-        return [unsorted_data.get('GPUmem'), unsorted_data.get('GPUmemAll')]
-    if sel == '6':
-        return [unsorted_data.get('RAMuse')]
-    if sel == '7':
-        return [unsorted_data.get('RAMused'), unsorted_data.get('RAMall')]
-    if sel == '8':
-        return ['Uptime: ' + unsorted_data.get('Uptime')]
-    if sel == '9':
-        return ['DiskSpace0: ' + unsorted_data.get('DiskUsedSpace[0]')]
-    if sel == '10':
-        return ['DiskSpace1: ' + unsorted_data.get('DiskUsedSpace[1]')]
-    if sel == '11':
-        return ['DiskSpace2: ' + unsorted_data.get('DiskUsedSpace[2]')]
-    if sel == '12':
-        return ['DiskRead0  ' + unsorted_data.get('DiskRead[0]'), 'DiskWrite0 ' + unsorted_data.get('DiskWrite[0]')]
-    if sel == '13':
-        return ['DiskRead1  ' + unsorted_data.get('DiskRead[1]'), 'DiskWrite1 ' + unsorted_data.get('DiskWrite[1]')]
-    if sel == '14':
-        return ['DiskRead2  ' + unsorted_data.get('DiskRead[2]'), 'DiskWrite2 ' + unsorted_data.get('DiskWrite[2]')]
+    QtTest.QTest.qWait(1000)
+    sys.exit(app.exec_())
 
 
 # Counting the number of pressed checkboxes
@@ -317,104 +199,8 @@ def display_disks_rw(val):
         disk_selected_rw.clear()
 
 
-# Open port button
-def onOpen():
-    serial.setPortName(ui.comlist.currentText())
-    serial.open(QIODevice.ReadWrite)
-    hello = ['hello', '95']
-    QtTest.QTest.qWait(3000)
-    serialSendInt(hello)
-
-
-# Close button
-def close():
-    global infinity
-    infinity = 'limit'
-    bye = ['bye', '97']
-    serialSendInt(bye)
-    QtTest.QTest.qWait(1000)
-
-    serial.close()
-    sys.exit(app.exec_())
-
-
-# Parsing a conventional sensor
-def parse_sensor(Type, SensorName):
-    sensors = hwmon.Sensor(SensorType=Type, Name=SensorName)
-    for s in sensors:
-        return round(s.Value, 2)
-
-
-# Parsing >1 sensor
-def parse_sensors(Type, SensorName):
-    things = []
-    sensors = hwmon.Sensor(SensorType=Type, Name=SensorName)
-    if Type == 'Throughput':
-        for s in sensors:
-            print(s)
-            things.append(human_bytes(s.Value))
-    else:
-        for s in sensors:
-            thing = round(s.Value, 2)
-            things.append(str(thing) + ' % ')
-    return things
-
-
-# Data organization function
-def organize_data():
-    CPUTemp = parse_sensor(hw_sensors[0], hw_names[0])
-    GPUTemp = parse_sensor(hw_sensors[0], hw_names[1])
-    CPUClocks = parse_sensor(hw_sensors[1], hw_names[2])
-    GPUClocks = parse_sensor(hw_sensors[1], hw_names[3])
-    GPUmemClocks = parse_sensor(hw_sensors[1], hw_names[4])
-    CPULoad = parse_sensor(hw_sensors[2], hw_names[5])
-    GPULoad = parse_sensor(hw_sensors[2], hw_names[6])
-    RAMuse = parse_sensor(hw_sensors[2], hw_names[7])
-    RAMused = parse_sensor(hw_sensors[3], hw_names[8])
-    RAMall = parse_sensor(hw_sensors[3], hw_names[9])
-    GPUmem = parse_sensor(hw_sensors[4], hw_names[10])
-    GPUmemAll = parse_sensor(hw_sensors[4], hw_names[11])
-    DiskUsedSpace = parse_sensors(hw_sensors[2], hw_names[12])
-    DiskRead = parse_sensors(hw_sensors[5], hw_names[13])
-    DiskWrite = parse_sensors(hw_sensors[5], hw_names[14])
-    Uptime = time.strftime("%H:%M:%S", time.gmtime(uptime()))
-
-    if len(DiskUsedSpace) > 1:
-        try:
-            RAMall = round(float(RAMall) + float(RAMused), 2)
-            hw_vars = {'CPUTemp': int(CPUTemp), 'GPUTemp': int(GPUTemp), 'CPUClocks': CPUClocks, 'GPUClocks': GPUClocks,
-                       'GPUmemClocks': GPUmemClocks, 'CPULoad': int(CPULoad),
-                       'GPULoad': int(GPULoad), 'RAMuse': int(RAMuse), 'RAMused': str(RAMused) + 'GB',
-                       'RAMall': str(RAMall) + 'GB',
-                       'GPUmem': int(GPUmem), 'GPUmemAll': int(GPUmemAll), 'Uptime': Uptime}
-            for i in range(len(DiskUsedSpace)):
-                hw_vars[f'DiskUsedSpace[{i}]'] = DiskUsedSpace[i]
-            alt_i = len(DiskRead) - 1
-            for i in range(len(DiskRead)):
-                hw_vars[f'DiskRead[{i}]'] = DiskRead[alt_i]
-                alt_i -= 1
-            alt_i = len(DiskWrite) - 1
-            for i in range(len(DiskWrite)):
-                hw_vars[f'DiskWrite[{i}]'] = DiskWrite[alt_i]
-                alt_i -= 1
-        except TypeError:
-            return None
-        return hw_vars
-
-
-# Byte Conversion
-def human_bytes(B):
-    B = float(B)
-    KB = float(1024)
-    MB = float(KB ** 2)  # 1,048,576
-    GB = float(KB ** 3)  # 1,073,741,824
-
-    if B < KB:
-        return '{0} {1}'.format(B, 'Bytes' if 0 == B > 1 else 'Byte')
-    elif KB <= B < MB:
-        return '{0:.2f} KB'.format(B / KB)
-    elif MB <= B < GB:
-        return '{0:.2f} MB'.format(B / MB)
+def Open():
+    onOpen(ui.comlist.currentText())
 
 
 # Checkboxes
@@ -450,7 +236,7 @@ ui.combodiskusage.textActivated.connect(display_disks_rw)
 # Buttons
 ui.applybutton.clicked.connect(apply)
 ui.exitbutton.clicked.connect(close)
-ui.openbutton.clicked.connect(onOpen)
+ui.openbutton.clicked.connect(Open)
 
 if __name__ == '__main__':
     # Start UI
