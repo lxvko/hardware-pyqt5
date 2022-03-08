@@ -5064,3 +5064,10 @@ __pycache__/adaptation.cpython-310.pyc
 __pycache__/arduino.cpython-310.pyc
 __pycache__/fetch_data.cpython-310.pyc
 etc/libre hw monitor/LibreHardwareMonitor.sys
+etc/libre hw monitor/Aga.Controls.dll
+etc/libre hw monitor/LibreHardwareMonitor.exe
+etc/libre hw monitor/LibreHardwareMonitorLib.dll
+etc/libre hw monitor/Microsoft.Win32.TaskScheduler.dll
+etc/libre hw monitor/Newtonsoft.Json.dll
+etc/libre hw monitor/OxyPlot.dll
+etc/libre hw monitor/OxyPlot.WindowsForms.dll
